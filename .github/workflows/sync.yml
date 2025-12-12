@@ -1,0 +1,33 @@
+name: Sync Raindrop to OSS
+
+on:
+  schedule:
+    # 每天北京时间早上 8:00 运行 (UTC 0:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许手动点按钮运行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install requests oss2
+
+      - name: Run sync script
+        env:
+          RAINDROP_TOKEN: ${{ secrets.RAINDROP_TOKEN }}
+          RAINDROP_COLLECTION_ID: ${{ secrets.RAINDROP_COLLECTION_ID }}
+          OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+          OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
+          OSS_ENDPOINT: ${{ secrets.OSS_ENDPOINT }}
+        run: python main.py
